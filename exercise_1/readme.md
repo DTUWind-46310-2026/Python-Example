@@ -67,7 +67,3 @@ Similar to `__init__()`, but this time for the instance `my_object`. I.e., `__ca
 ```python
 my_object(...)
 ```
-
-### `self`
-
-Coming later today.
