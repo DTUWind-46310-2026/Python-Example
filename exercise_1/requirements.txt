@@ -2,4 +2,3 @@ scipy
 matplotlib
 pandas
 numpy
-PyQt6

@@ -10,8 +10,8 @@ class Rotation:
     Static methods for rotating arrays and coordinate transformations.
     """
 
-    @classmethod
-    def rotate_2d(cls, array, angle):
+    @staticmethod
+    def rotate_2d(array, angle):
         """
         Rotate (n, 2) array around origin by angle.
 
@@ -33,8 +33,8 @@ class Rotation:
         rotation_matrix = np.array([[cos_a, -sin_a], [sin_a, cos_a]])
         return array @ rotation_matrix.T
 
-    @classmethod
-    def rotate_3d_x(cls, array, angle):
+    @staticmethod
+    def rotate_3d_x(array, angle):
         """
         Rotate (n, 3) array around origin by angle about x.
 
@@ -56,8 +56,8 @@ class Rotation:
         rotation_matrix = np.array([[1, 0, 0], [0, cos_a, -sin_a], [0, sin_a, cos_a]])
         return array @ rotation_matrix.T
 
-    @classmethod
-    def rotate_3d_y(cls, array, angle):
+    @staticmethod
+    def rotate_3d_y(array, angle):
         """
         Rotate (n, 3) array around origin by angle about y.
 
@@ -79,8 +79,8 @@ class Rotation:
         rotation_matrix = np.array([[cos_a, 0, sin_a], [0, 1, 0], [-sin_a, 0, cos_a]])
         return array @ rotation_matrix.T
 
-    @classmethod
-    def rotate_3d_z(cls, array, angle):
+    @staticmethod
+    def rotate_3d_z(array, angle):
         """
         Rotate (n, 3) array around origin by angle about z.
 
