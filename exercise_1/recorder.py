@@ -45,7 +45,7 @@ class Recorder:
         self.func = func
         self.name = name
         self.func_returns = func_returns if isinstance(func_returns, tuple) else (func_returns,)
-        self._data = np.ndarray((0,))
+        self._data = np.ndarray
         self._steps_udpated = False
 
     def update_n_steps(self, n_steps: int):
@@ -59,7 +59,7 @@ class Recorder:
 
     @property
     def data(self) -> np.ndarray:
-        return self._data.squeeze()
+        return self._data
 
 
 def time_recorder():

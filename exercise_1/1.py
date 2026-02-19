@@ -33,7 +33,7 @@ if do["1"]:
 
     data = simulation.get_recorders()
     fig, ax = plt.subplots()
-    ax.plot(data[recorder_name]["values"][:, 1], data[recorder_name]["values"][:, 0])
+    ax.plot(data[recorder_name]["y"], data[recorder_name]["x"])
     ax.set_xlabel("y (m)")
     ax.set_ylabel("x (m)")
     ax.set_aspect("equal")
@@ -55,7 +55,7 @@ if do["2"]:
         simulation.run(dt, T)
 
         data = simulation.get_recorders()
-        ax.plot(data[recorder_name]["values"][:, 1], data[recorder_name]["values"][:, 0], label=f"{yaw=}$\degree$")
+        ax.plot(data[recorder_name]["y"], data[recorder_name]["x"], label=f"{yaw=}$\degree$")
 
     simulation.save_recorders("sim_data", overwrite=True)
     ax.set_xlabel("y (m)")
@@ -82,9 +82,9 @@ if do["3"]:
         simulation.run(dt, T)
 
         data = simulation.get_recorders()
-        azimuth = data["time"]["values"] * omega_init / (2 * np.pi) * 360
-        ax.plot(azimuth, data[recorder_name]["values"][:, 1], label=f"{yaw=}$\degree$, $V_y$")
-        ax.plot(azimuth, data[recorder_name]["values"][:, 2], label=f"{yaw=}$\degree$, $V_z$")
+        azimuth = data["time"] * omega_init / (2 * np.pi) * 360
+        ax.plot(azimuth, data[recorder_name]["v"], label=f"{yaw=}$\degree$, $V_y$")
+        ax.plot(azimuth, data[recorder_name]["w"], label=f"{yaw=}$\degree$, $V_z$")
 
     simulation.save_recorders("sim_data", overwrite=True)
     ax.set_xlabel("Azimuth (deg)")
@@ -110,11 +110,11 @@ if do["4"]:
     simulation.save_recorders("sim_data", overwrite=True)
 
     data = simulation.get_recorders()
-    azimuth = data["time"]["values"] * omega_init / (2 * np.pi) * 360
+    azimuth = data["time"] * omega_init / (2 * np.pi) * 360
 
     fig, ax = plt.subplots()
-    ax.plot(azimuth, data[recorder_name]["values"][:, 1], label="$V_y$")
-    ax.plot(azimuth, data[recorder_name]["values"][:, 2], label="$V_z$")
+    ax.plot(azimuth, data[recorder_name]["v"], label="$V_y$")
+    ax.plot(azimuth, data[recorder_name]["w"], label="$V_z$")
 
     ax.set_xlabel("Azimuth (deg)")
     ax.set_ylabel("Velocity (m/s)")
@@ -152,12 +152,12 @@ if do["5"]:
 
     # Get data (saving above not needed for this) for plotting
     data = simulation.get_recorders()
-    azimuth = data["time"]["values"] * omega_init / (2 * np.pi) * 360
+    azimuth = data["time"] * omega_init / (2 * np.pi) * 360
 
     # Plot
     fig, ax = plt.subplots()
-    ax.plot(azimuth, data[recorder_name]["values"][:, 1], label="$V_y$")
-    ax.plot(azimuth, data[recorder_name]["values"][:, 2], label="$V_z$")
+    ax.plot(azimuth, data[recorder_name]["v"], label="$V_y$")
+    ax.plot(azimuth, data[recorder_name]["w"], label="$V_z$")
 
     ax.set_xlabel("Azimuth (deg)")
     ax.set_ylabel("Velocity (m/s)")

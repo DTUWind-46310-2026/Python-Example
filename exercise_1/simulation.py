@@ -77,7 +77,9 @@ class Simulation:
         dict[str, dict[str, tuple[str, ...] | np.ndarray]]
             Dictionary with format {<recorder_name>: {"dims": <dimension names of data>, "values": <data of recorder>}}
         """
-        return {rec.name: {"dims": rec.func_returns, "values": rec.data} for rec in self.recorders}
+        data = {rec.name: {dim: rec.data[:, i] for i, dim in enumerate(rec.func_returns)} for rec in self.recorders}
+        data["time"] = data["time"].pop("time")
+        return data
 
     def save_recorders(self, root: str | Path, case_name="", overwrite=False):
         """
@@ -94,15 +96,13 @@ class Simulation:
             Whether or not to overwrite if the file exists already, by default False
         """
         recorders = self.get_recorders()
-        time = {"time": recorders.pop("time")["values"]}
+        time = {"time": recorders.pop("time")}
         (_r := Path(root)).mkdir(parents=True, exist_ok=True)
         for rec_name, data in recorders.items():
             if (save_to := (_r / (rec_name + f"{case_name}.csv"))).is_file() and not overwrite:
                 print(f"Skipping '{save_to.as_posix()}' because it already exists and 'overwrite=False'")
                 continue
-            dims = data["dims"]
-            values = data["values"] if len(data["values"].shape) > 1 else np.atleast_2d(data["values"]).T
-            pd.DataFrame(time | {dim: values[:, i] for i, dim in enumerate(dims)}).to_csv(save_to, index=False)
+            pd.DataFrame(time | data).to_csv(save_to, index=False)
 
 
 if __name__ == "__main__":
