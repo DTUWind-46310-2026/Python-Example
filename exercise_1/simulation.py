@@ -67,15 +67,30 @@ class Simulation:
 
             self.time += dt
 
-    def get_recorders(self) -> dict[str, dict[str, tuple[str, ...] | np.ndarray]]:
+    def get_recorders(self) -> dict[str, np.ndarray | dict[str, np.ndarray]]:
         """
         Returns the data of all the recorders.
 
+        Example
+        -------
+        If you added a recorder `Recorder(record_function, "my_recorder", ("u", "v", "w"))` to the simulation, then the 
+        return of `get_recorders()` will be
+        ```
+        {"time": <time at each time step>,
+         "my_recorder": {
+            "u": <u time series>,
+            "v": <v time series>,
+            "w": <w time series>,
+            }
+         }
+        ```
+        Adding more recorders to the simulation adds more keys with the recorders' names and their data (as 
+        dictionaries again) to the returned dictionary.
 
         Returns
         -------
-        dict[str, dict[str, tuple[str, ...] | np.ndarray]]
-            Dictionary with format {<recorder_name>: {"dims": <dimension names of data>, "values": <data of recorder>}}
+        dict[str, np.ndarray | dict[str, np.ndarray]]
+            Dictionary with format {<recorder_name>: {<quantity name>: <quantity data>} | {"time": <times of simulation>}
         """
         data = {rec.name: {dim: rec.data[:, i] for i, dim in enumerate(rec.func_returns)} for rec in self.recorders}
         data["time"] = data["time"].pop("time")
@@ -84,7 +99,8 @@ class Simulation:
     def save_recorders(self, root: str | Path, case_name="", overwrite=False):
         """
         Save the data of the recorders to files in the `root` directory. The files will have the names
-        `<recorder_name><case_name>.csv`.
+        `<recorder_name><case_name>.csv`. The file headers are `"time"` and the names specified by `func_returns`
+        when defining each recorder.
 
         Parameters
         ----------
