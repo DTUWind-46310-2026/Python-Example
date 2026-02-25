@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
 from recorder import (
     blade_position_1_recorder,
     blade_velocity_5_recorder,
@@ -11,10 +10,10 @@ from structure import RigidStructure
 from wind import ConstantWind, ShearWind, WindWithTower
 
 do = {
-    "1": True,
-    "2": True,
-    "3": True,
-    "4": True,
+    "1": False,
+    "2": False,
+    "3": False,
+    "4": False,
     "5": True,
 }
 

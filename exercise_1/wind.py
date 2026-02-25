@@ -109,7 +109,7 @@ class WindWithTower(Wind):
         xyz = np.atleast_2d(xyz)
 
         x, y, z = xyz.T
-        r = np.linalg.norm(xyz[:, 1:3] - self.centre)
+        r = np.linalg.norm(xyz[:, 1:3] - self.centre, axis=1)
         V_0 = np.atleast_2d(self.surrounding_wind(xyz))[:, 2]
         v_r = z / r * V_0 * (1 - (self.a(x) / r) ** 2)
         v_theta = y / r * V_0 * (1 + (self.a(x) / r) ** 2)
