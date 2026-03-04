@@ -330,7 +330,7 @@ for ia, (a0, color) in enumerate(zip(alpha0_list, colors)):
     )
 ax4_bot.axhline(0, color="k", linewidth=0.8, linestyle="--")
 ax4_bot.set_xlabel("Time in last period (s)")
-ax4_bot.set_ylabel("$F_x\cos(\omega t)$ (N/m)")
+ax4_bot.set_ylabel(r"$F_x\cos(\omega t)$ (N/m)")
 ax4_bot.grid(True, alpha=0.3)
 ax4_bot.legend(fontsize=7)
 
