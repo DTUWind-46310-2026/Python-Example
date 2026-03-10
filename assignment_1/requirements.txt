@@ -1,2 +1,6 @@
 hipersim
 wetb
+pandas
+numpy
+scipy
+matplotlib
