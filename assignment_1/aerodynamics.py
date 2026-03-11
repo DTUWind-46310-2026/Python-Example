@@ -116,17 +116,9 @@ class Aerodynamics(AerodynamicsBase):
         # Set up the polar interpolants
         rthick = self._polar_data["rel_thickness"]
         alpha_vals = self._polar_data["alpha"]
-        element_thicknesses = simulation.structure.rel_thickness[: self.n_elements]
-        element_indices = np.arange(self.n_elements)
-
-        ip_blade_thickness = np.repeat(element_thicknesses, len(alpha_vals))
-        ip_blade_alpha = np.tile(alpha_vals, self.n_elements)
-        ip_blade_polars = np.column_stack([ip_blade_thickness, ip_blade_alpha])
+        self._element_thicknesses = simulation.structure.rel_thickness[: self.n_elements]
         for var, data in [(v, d) for v, d in self._polar_data.items() if v not in ("rel_thickness", "alpha")]:
-            rgi_thickness = RegularGridInterpolator((rthick, alpha_vals), data)
-            element_data = rgi_thickness(ip_blade_polars).reshape(self.n_elements, len(alpha_vals))
-            self._polar_interpolant[var] = RegularGridInterpolator((element_indices, alpha_vals), element_data)
-        self._element_indices = element_indices
+            self._polar_interpolant[var] = RegularGridInterpolator((rthick, alpha_vals), data)
 
         # Allocate memory for the aerodynamic calculations
         shape_1var = (self.structure_data["n_blades"], self.n_elements)
@@ -168,7 +160,7 @@ class Aerodynamics(AerodynamicsBase):
     @timer
     def step_forces(self, simulation: Simulation):
         n_blades = simulation.structure.n_blades
-        interp_points = np.column_stack([np.tile(self._element_indices, n_blades), self.alpha.ravel()])
+        interp_points = np.column_stack([np.tile(self._element_thicknesses, n_blades), self.alpha.ravel()])
         cl_stdy_blades = self._polar_interpolant["cl_stdy"](interp_points).reshape(self.alpha.shape)
         cd_stdy_blades = self._polar_interpolant["cd_stdy"](interp_points).reshape(self.alpha.shape)
 
