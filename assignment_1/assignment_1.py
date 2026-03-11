@@ -181,20 +181,18 @@ if simulate["4"]:
     turb_file = dir_4 / "turb_field.nc"
     overwrite_box = False
     mean_wind = ConstantWind(8)
-    mean_wind = ShearWind(119, 8, 0.2)
     if not turb_file.is_file() or overwrite_box:
         wind = TurbulentWind.generate((5016, 32, 32), (5, 6, 6), 0.1, mean_wind, turb_file)
     else:
         wind = TurbulentWind.load(turb_file, mean_wind)
-    wind = WindWithTower(wind)
     sim = Simulation(
-        RigidStructure(omega_4, yaw=5),
+        RigidStructure(omega_4),
         Aerodynamics(),
         wind,
-        # [
-        #     thrust_recorder(),
-        #     pz_recorder(),
-        # ],
+        [
+            thrust_recorder(),
+            pz_recorder(),
+        ],
     )
     sim.run(dt_4, 3000, dir_4, True)
 
