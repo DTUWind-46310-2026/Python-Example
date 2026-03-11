@@ -267,6 +267,7 @@ try:
             TI: float,
             mean_wind: WindBase,
             save: str | Path = "",
+            hub_mean: float | None = None,
         ) -> TurbulentWind:
             """
             Generate turbulent fluctuations based on `Nxyz`, `dxyz`, `TI`, and `mean_wind`. If `save` is given, save the fluctuations to a netcdf file (`save` has to end in `.nc`.).
@@ -293,7 +294,12 @@ try:
             # Generate the turbulence fluctuations
             mtf = hipersim.MannTurbulenceField.generate(Nxyz=Nxyz, dxyz=dxyz)
             # Scale the fluctuations
-            mtf.scale_TI(TI, mean_wind.hub_mean)
+            hm = mean_wind.hub_mean if mean_wind.hub_mean is not None else hub_mean
+            if hm is None:
+                raise ValueError(
+                    f"Need to specify 'hub_mean' in 'generate' when using wind '{mean_wind.__class__.__name__}'"
+                )
+            mtf.scale_TI(TI, hm)
 
             # Adjust the coordinate system
             mtf = mtf.to_xarray()
