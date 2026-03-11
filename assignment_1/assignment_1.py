@@ -43,8 +43,7 @@ if simulate["1"]:
         wind,
         [power_recorder(), thrust_recorder(), py_recorder(), pz_recorder()],
     )
-    sim.run(0.05, 200)
-    sim.save_recorders(dir_1, "_unsteady", overwrite=True)
+    sim.run(0.05, 200, dir_1, True, "_unsteady")
 
     sim = Simulation(
         RigidStructure(0.72),
@@ -52,8 +51,7 @@ if simulate["1"]:
         wind,
         [power_recorder(), thrust_recorder(), py_recorder(), pz_recorder()],
     )
-    sim.run(0.1, 5)
-    sim.save_recorders(dir_1, "_steady", overwrite=True)
+    sim.run(0.1, 5, dir_1, True, "_steady")
 
 if plot["1"]:
     r = pd.read_csv("data/blade_data.csv")["radius"].to_numpy()
@@ -120,8 +118,7 @@ if simulate["2"]:
             thrust_recorder(2),
         ],
     )
-    sim.run(0.05, 200)
-    sim.save_recorders(dir_2, overwrite=True)
+    sim.run(0.05, 200, dir_2, True)
 
 if plot["2"]:
     fig, ax = plt.subplots()
@@ -152,8 +149,7 @@ if simulate["3"]:
             induction_recorder(0, 10),
         ],
     )
-    sim.run(0.05, 200)
-    sim.save_recorders(dir_3, overwrite=True)
+    sim.run(0.05, 200, dir_3, True)
 
 if plot["3"]:
     fig, ax = plt.subplots()
@@ -180,24 +176,27 @@ if plot["3"]:
 dt_4 = 0.05
 omega_4 = 0.72
 if simulate["4"]:
+    from wind import ShearWind, WindWithTower
+
     turb_file = dir_4 / "turb_field.nc"
     overwrite_box = False
     mean_wind = ConstantWind(8)
+    mean_wind = ShearWind(119, 8, 0.2)
     if not turb_file.is_file() or overwrite_box:
         wind = TurbulentWind.generate((5016, 32, 32), (5, 6, 6), 0.1, mean_wind, turb_file)
     else:
         wind = TurbulentWind.load(turb_file, mean_wind)
+    wind = WindWithTower(wind)
     sim = Simulation(
-        RigidStructure(omega_4),
+        RigidStructure(omega_4, yaw=5),
         Aerodynamics(),
         wind,
-        [
-            thrust_recorder(),
-            pz_recorder(),
-        ],
+        # [
+        #     thrust_recorder(),
+        #     pz_recorder(),
+        # ],
     )
-    sim.run(dt_4, 3000)
-    sim.save_recorders(dir_4, overwrite=True)
+    sim.run(dt_4, 3000, dir_4, True)
 
 
 if plot["4"]:

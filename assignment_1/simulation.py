@@ -44,7 +44,7 @@ class Simulation:
         self.recorders.append(time_recorder())
         self.timer = timer
 
-    def run(self, dt: float, T: float, dir_out: str | Path | None = None, overwrite: bool = False):
+    def run(self, dt: float, T: float, dir_out: str | Path | None = None, overwrite: bool = False, case_name: str = ""):
         """
         Run the simulation.
 
@@ -80,7 +80,7 @@ class Simulation:
                 recorder(self)
 
         if dir_out is not None:
-            self.save_recorders(dir_out, overwrite=overwrite)
+            self.save_recorders(dir_out, case_name, overwrite)
             self.timer.report(Path(dir_out) / "timing.json", T, dt)
 
     def get_recorders(self) -> dict[str, np.ndarray | dict[str, np.ndarray]]:

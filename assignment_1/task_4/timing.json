@@ -1,0 +1,44 @@
+{
+  "general": {
+    "T_sim": 3000,
+    "T_compute": 90.4129579,
+    "dt": 0.05,
+    "n_dt/T_compute": 663.621690890394
+  },
+  "WindWithTower.step": {
+    "total_s": 0.0149563,
+    "count": 60001
+  },
+  "Aerodynamics.step": {
+    "total_s": 90.3679481,
+    "count": 60001,
+    "Aerodynamics.step_inflow": {
+      "total_s": 72.0107672,
+      "count": 60001,
+      "WindWithTower.__call__": {
+        "total_s": 61.3343404,
+        "count": 180003,
+        "TurbulentWind.__call__": {
+          "total_s": 52.8555782,
+          "count": 180003,
+          "ShearWind.__call__": {
+            "total_s": 3.1103569,
+            "count": 180003
+          }
+        }
+      }
+    },
+    "Aerodynamics.step_forces": {
+      "total_s": 11.7102213,
+      "count": 60001
+    },
+    "Aerodynamics.step_induction": {
+      "total_s": 6.4163622,
+      "count": 60001
+    }
+  },
+  "RigidStructure.step": {
+    "total_s": 0.0300535,
+    "count": 60001
+  }
+}

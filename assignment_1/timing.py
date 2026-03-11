@@ -72,7 +72,7 @@ class Timer:
 
         _times = _to_dict(self._timings)
         general = {"T_sim": sim_time, "T_compute": sum([v["total_s"] for v in _times.values()])}
-        general |= {"n_dt/T_compute": (sim_time / dt) / general["T_compute"]}
+        general |= {"dt": dt, "n_dt/T_compute": (sim_time / dt) / general["T_compute"]}
         Path(path).write_text(json.dumps({"general": general} | _times, indent=2))
 
     @staticmethod
