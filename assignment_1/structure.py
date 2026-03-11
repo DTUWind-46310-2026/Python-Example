@@ -270,10 +270,9 @@ class RigidStructure(StructureBase):
         NotImplementedError
             Drive train dynamics are not yet implemented.
         """
-        if not self.drive_train_dynamics:
-            self.azimuth_shaft += self.omega_shaft * simulation.dt
-        else:
+        if self.drive_train_dynamics:
             raise NotImplementedError("You'll have to implement the drive train dynamcis at some point :)")
+        self.azimuth_shaft += self.omega_shaft * simulation.dt
 
     def blade_x1(self, blade_idx: int) -> np.ndarray:
         """
