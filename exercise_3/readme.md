@@ -88,24 +88,24 @@ figs34_dynamic_stall = False
 ---
 
 Next, we'll investigate the four plots created by `exercise_3.py`. Figure 1 shows the total aerodynamic work of the last period for different vibration directions. The vertical dashed line indicates the vibration direction that the next plots focus on. In this case, we expect strong positive aerodynamic damping for the $\theta=90°$ case.
-![alt text](example_images/work.png)
+![alt text](readme_figs/work.png)
 
 Figure 2 shows the $C_l$ loops of the last period for the quasi-steady and dynamic stall case. The black dot shows the start of the loop; the arrow (in the dynamic stall case) shows the direction of the loop. Since the airfoil is almost completely operating in the attached region, there is only a minor difference between the quasi-steady and dynamic stall case. Already judging by the loops we see here, we expect positive aerodynamic damping.
-![alt text](example_images/polar_loops.png)
+![alt text](readme_figs/polar_loops.png)
 
 Figures 3 and 4 give us insights into the power that the lift and drag pump into or take out of the structural oscillation. From the lecture, we know that the work done of the aerodynamic forces during one period can be calculated as
-![alt text](example_images/work_calc.png)
+![alt text](readme_figs/work_calc.png)
 Figure 3 focuses on visualising $F_x$ over one period and Figure 4 focuses on the product in the integral. For now, we will only focus on the lift contribution; the reasoning for the drag contribution is very similar.
 
 Lets look at Figure 3 that shows different quantities over one period. The first row shows the $\sin(\alpha-\theta)$ term that acts as projecting the lift onto the oscillation axis. In this case, it is $\approx-1$. The second row shows the lift. The last row shows the product of the first two: how much of the lift is acting in the direction of the osciallation axis $x$. In other terms: the lift's contribution to $F_x$.
-![alt text](example_images/components.png)
+![alt text](readme_figs/components.png)
 
 Knowing the lift's contribution to $F_x$, we now investigate the lift's contribution to the aerodynamic power with Figure 4. Again, the plots show distrubtions over one period. In the top row, we see the bottom plot of Figure 3 again with an overlay of $\cos(\omega t)$ on the right y-axis. $\cos(\omega t)$ defines the direction and speed (when multiplied with $A\omega$) of the oscillation. The product of the lift's contribution and this $\cos$ term thus dictates whether the lift is adding or extracting energy from the structure; this is shown in the second row. In other words, the second row shows the aerodynamic power (when multiplied with $A\omega$) as seen from the structure. We were expecting strong positive damping and that is what we mostly see. However, how come there are two regions where the aerodynamics actually add energy to the system (negative damping)? At last, the plot in the third row shows the sum of the lift's and drag's power contribution (we excluded the drag in this example).
-![alt text](example_images/work_integrand.png)
+![alt text](readme_figs/work_integrand.png)
 
 ## Play around
 
 You can set multiple $\alpha_0$ values at once and compare the results. For example, here are some more $C_l$ loops and power contributions of the unsteady aerodynamics case.
 
-![alt text](example_images/more_loops.png)
-![alt text](example_images/work_integrand_more.png)
+![alt text](readme_figs/more_loops.png)
+![alt text](readme_figs/work_integrand_more.png)
