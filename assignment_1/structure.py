@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from simulation import Simulation
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -31,17 +32,17 @@ class StructureBase(ABC):
 
     def __init__(
         self,
-        omega_init=0.0,
-        file_blade="data/blade_data.csv",
-        radius=89.17,
-        hub_height=119.0,
-        l_shaft=7.1,
-        yaw=0.0,
-        tilt=-5.0,
-        cone=2.5,
-        pitch_init: tuple[float, ...] = (0, 0, 0),
-        tower_yz: tuple[float, float] = (0, 0),
-        tower_radius: tuple[tuple[float, ...], tuple[float, ...]] = ((0, 119), (3.32, 3.32)),
+        omega_init: float,
+        file_blade: str | Path,
+        radius: float,
+        hub_height: float,
+        l_shaft: float,
+        yaw: float,
+        tilt: float,
+        cone: float,
+        pitch_init: tuple[float, ...],
+        tower_yz: tuple[float, float],
+        tower_radius: tuple[tuple[float, ...], tuple[float, ...]],
     ) -> None:
         """
         Sets up some instance variables for the child classes. Also defines
@@ -96,7 +97,7 @@ class StructureBase(ABC):
         self._tilt = np.deg2rad(tilt)
         self._cone = np.deg2rad(cone)
         self.n_blades = len(pitch_init)
-        self.pitch = np.deg2rad(pitch_init)
+        self._pitch = np.deg2rad(pitch_init)
         self.max_downstream_azimuth = self._max_downstream_azimuth(self._yaw, self._tilt)
         self.rotor_normal = self._rotor_normal(self.yaw, self.tilt)
 
@@ -165,6 +166,25 @@ class StructureBase(ABC):
         """
         pass
 
+    @abstractmethod
+    def x51(self, array: np.ndarray, blade_idx: int) -> np.ndarray:
+        """
+        Transforms an array from coordinate system 5 into coordinate system 1.
+
+        Parameters
+        ----------
+        array : np.ndarray
+            The array with shape (n, 3) where each row is in the directions [x, y, z]
+        blade_idx : int
+            Blade index.
+
+        Returns
+        -------
+        np.ndarray
+            The transformed array in the coordinate system 1.
+        """
+        pass
+
     @property
     def yaw(self):
         return self._yaw
@@ -176,6 +196,10 @@ class StructureBase(ABC):
     @property
     def cone(self):
         return self._cone
+
+    @property
+    def pitch(self):
+        return self._pitch
 
     @yaw.setter
     def yaw(self, yaw):
@@ -239,7 +263,6 @@ class RigidStructure(StructureBase):
         pitch_init: tuple[float, ...] = (0, 0, 0),
         tower_yz: tuple[float, float] = (0, 0),
         tower_radius: tuple[tuple[float, ...], tuple[float, ...]] = ((0, 119), (3.32, 3.32)),
-        drive_train_dynamics=False,
     ) -> None:
         """
         Initialises an instance for a rigid wind turbine. See `StructureBase` for more information.
@@ -250,10 +273,18 @@ class RigidStructure(StructureBase):
             Whether or not to include drive train dynamics, by default False
         """
         super().__init__(
-            omega_init, file_blade, radius, hub_height, l_shaft, yaw, tilt, cone, pitch_init, tower_yz, tower_radius
+            omega_init=omega_init,
+            file_blade=file_blade,
+            radius=radius,
+            hub_height=hub_height,
+            l_shaft=l_shaft,
+            yaw=yaw,
+            tilt=tilt,
+            cone=cone,
+            pitch_init=pitch_init,
+            tower_yz=tower_yz,
+            tower_radius=tower_radius,
         )
-
-        self.drive_train_dynamics = drive_train_dynamics
 
     @timer
     def step(self, simulation: Simulation):
@@ -264,14 +295,7 @@ class RigidStructure(StructureBase):
         ----------
         simulation : Simulation
             The simulation object.
-
-        Raises
-        ------
-        NotImplementedError
-            Drive train dynamics are not yet implemented.
         """
-        if self.drive_train_dynamics:
-            raise NotImplementedError("You'll have to implement the drive train dynamcis at some point :)")
         self.azimuth_shaft += self.omega_shaft * simulation.dt
 
     def blade_x1(self, blade_idx: int) -> np.ndarray:
@@ -330,6 +354,12 @@ class RigidStructure(StructureBase):
         x4 = Rotation.rotate_3d_z(x3, -self.blade_azimuth(blade_idx))
         return Rotation.rotate_3d_y(x4, -self.cone)
 
+    def x51(self, array: np.ndarray, blade_idx: int) -> np.ndarray:
+        x4 = Rotation.rotate_3d_y(array, self.cone)
+        x3 = Rotation.rotate_3d_z(x4, self.blade_azimuth(blade_idx))
+        x2 = Rotation.rotate_3d_x(x3, self.tilt)
+        return Rotation.rotate_3d_y(x2, self.yaw)
+
 
 class PitchingRigidStructure(RigidStructure):
 
@@ -368,7 +398,6 @@ class PitchingRigidStructure(RigidStructure):
             pitch_init,
             tower_yz,
             tower_radius,
-            drive_train_dynamics,
         )
 
         self._step_times = np.asarray([step[0] for step in steps])
@@ -380,7 +409,7 @@ class PitchingRigidStructure(RigidStructure):
         # Adjust the pitch
         if (i := (np.argwhere(simulation.time >= self._step_times)[-1])) > self._i_current_pitch:
             self._i_current_pitch = i
-            self.pitch = np.full_like(self.pitch, self._step_pitch[self._i_current_pitch])
+            self._pitch = np.full_like(self._pitch, self._step_pitch[self._i_current_pitch])
 
         # Advance the rotor position
         super().step(simulation)

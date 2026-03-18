@@ -27,11 +27,19 @@ class AerodynamicsBase(ABC):
     The method `simulation_init()` does nothing by default and can be overwritten (in the children).
     """
 
+    def __init__(self, rho: float) -> None:
+        self.rho = rho
+
     def simulation_init(self, simulation: Simulation):
         pass
 
     @abstractmethod
     def step(self, simulation: Simulation):
+        pass
+
+    @property
+    @abstractmethod
+    def torque(self) -> float:
         pass
 
 
@@ -44,7 +52,7 @@ class Aerodynamics(AerodynamicsBase):
         prandtl=True,
         dynamic_wake=True,
         dynamic_stall=True,
-        wake_effect: bool | str = True,
+        yaw_induction: bool | str = True,
         rho=1.225,
         skip_last_blade_elements=1,
     ):
@@ -66,21 +74,21 @@ class Aerodynamics(AerodynamicsBase):
             Whether or not to use Øye's dynamic wake model, by default True.
         dynamic_stall : bool, optional
             Whether or not to use Øye's dynamic stall model, by default True.
-        wake_effect : bool | str, optional
-            Whether or not to redistribute the induced velocities under yaw, by default True. When `wake_effect=True`,
+        yaw_induction : bool | str, optional
+            Whether or not to redistribute the induced velocities under yaw, by default True. When `yaw_induction=True`,
             the geomtrical model is used. Accepted values are `True`, `False`, `geometrical`, `empirical`.
         rho : float, optional
             Air density, by default 1.225.
         skip_last_blade_elements : int, optional
             How many blade elements (defined by simulation.strucutre) to skip, counting from the tip. By default 1.
         """
+        AerodynamicsBase.__init__(self, rho=rho)
         self._polar_data = self.load_polars(polar_data_directory)
         self.glauert = glauert
         self.prandtl = prandtl
         self.dynamic_wake = dynamic_wake
         self.dynamic_stall = dynamic_stall
-        self.wake_effect = wake_effect
-        self.rho = rho
+        self.yaw_induction = yaw_induction
         self.skip_last_blade_elements = skip_last_blade_elements
         self.k = 0.6
 
@@ -199,21 +207,23 @@ class Aerodynamics(AerodynamicsBase):
         # Now W_qs is in shape (uvw, n_blades, n_elements) but needs to in in shape (n_blades, n_elements, uvw)
         W_qs = W_qs.transpose(1, 2, 0)
 
-        if self.wake_effect and simulation.structure.yaw != 0:
+        if self.yaw_induction and simulation.structure.yaw != 0:
             blade_azimuths = simulation.structure.blade_azimuth(np.asarray(range(simulation.structure.n_blades)))
             d_azi = blade_azimuths - simulation.structure.max_downstream_azimuth
-            if self.wake_effect == "geometrical" or self.wake_effect is True:
-                W_wake5 = self.W[:, self._wake_r_idx].mean(axis=0)
-                W_wake2 = Rotation.rotate_3d_y(W_wake5, simulation.structure.tilt)
-                W_wake1 = Rotation.rotate_3d_x(W_wake2, simulation.structure.yaw)
+            if self.yaw_induction == "geometrical" or self.yaw_induction is True:
+                W_wake1 = [
+                    simulation.structure.x51(self.W[i, self._wake_r_idx], i)
+                    for i in range(simulation.structure.n_blades)
+                ]
+                W_wake1 = np.asarray(W_wake1).mean(axis=0)
                 V_wake = np.asarray([0, 0, simulation.wind.hub_mean]) + W_wake1
                 chi = np.arccos(np.dot(simulation.structure.rotor_normal, V_wake) / np.linalg.norm(V_wake))
-            elif self.wake_effect == "empirical":
+            elif self.yaw_induction == "empirical":
                 Ct = self.thrust / (0.5 * self.rho * np.pi * R**2 * simulation.wind.hub_mean**2)
                 a_glob = 0.246 * Ct + 0.0586 * Ct**2 + 0.0883 * Ct**3
                 chi = (0.6 * a_glob + 1) * simulation.structure.yaw
             else:
-                raise NotImplementedError(f"{self.wake_effect=} but implemented are 'geometrical', 'empirical'.")
+                raise NotImplementedError(f"{self.yaw_induction=} but implemented are 'geometrical', 'empirical'.")
             W_qs *= 1 + self.r[na, :, na] / R * np.tan(chi / 2) * np.cos(d_azi[:, na, na])
 
         if self.dynamic_wake:
@@ -276,8 +286,15 @@ class Aerodynamics(AerodynamicsBase):
 
 
 class NoAerodynamics(AerodynamicsBase):
+    def __init__(self) -> None:
+        super().__init__(1.225)
+
     def simulation_init(self, simulation: Simulation):
         pass
 
     def step(self, simulation: Simulation):
         pass
+
+    @property
+    def torque(self) -> float:
+        return 0
