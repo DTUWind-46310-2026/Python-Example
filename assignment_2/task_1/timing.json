@@ -1,32 +1,32 @@
 {
   "general": {
-    "T_sim": 1380,
-    "T_compute": 7.6975652000000006,
+    "T_sim": 1940,
+    "T_compute": 17.7632099,
     "dt": 0.1,
-    "n_dt/T_compute": 1792.7746815317653
+    "n_dt/T_compute": 1092.1449506713311
   },
   "Aerodynamics.step": {
-    "total_s": 7.2964925,
-    "count": 13801,
+    "total_s": 16.8102122,
+    "count": 19401,
     "Aerodynamics.step_inflow": {
-      "total_s": 3.5283057,
-      "count": 13801,
+      "total_s": 7.6292882,
+      "count": 19401,
       "ConstantWind.__call__": {
-        "total_s": 0.6312164,
-        "count": 41403
+        "total_s": 1.4322143,
+        "count": 58203
       }
     },
     "Aerodynamics.step_forces": {
-      "total_s": 2.7998688,
-      "count": 13801
+      "total_s": 6.9986048,
+      "count": 19401
     },
     "Aerodynamics.step_induction": {
-      "total_s": 0.9116492,
-      "count": 13801
+      "total_s": 2.0400595,
+      "count": 19401
     }
   },
   "RigidStructure.step": {
-    "total_s": 0.4010727,
-    "count": 13801
+    "total_s": 0.9529977,
+    "count": 19401
   }
 }
