@@ -10,7 +10,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
 from rotation import Rotation
 from timing import timer
 
@@ -399,7 +398,7 @@ class PitchingRigidStructure(RigidStructure):
         yaw=0.0,
         tilt=-5.0,
         cone=2.5,
-        pitch_init: tuple[float, ...] = (-0.2617, -0.2617, -0.2617),
+        pitch_init: tuple[float, ...] = (-0.3196, -0.3196, -0.3196),
         tower_yz: tuple[float, float] = (0, 0),
         tower_radius: tuple[tuple[float, ...], tuple[float, ...]] = ((0, 119), (3.32, 3.32)),
         drive_train_dynamics=False,
