@@ -2,13 +2,12 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from tqdm import trange
-
 from aerodynamics import AerodynamicsBase, NoAerodynamics
 from controller import ControllerBase
 from recorder import Recorder, time_recorder
 from structure import StructureBase
 from timing import timer
+from tqdm import trange
 from wind import NoWind, WindBase
 
 
@@ -39,7 +38,7 @@ class Simulation:
         self.wind = wind
         self.aerodynamics = aerodynamics
         self.controller = controller
-        self.model_parts = [self.wind, self.aerodynamics, self.structure, self.controller]
+        self.model_parts = [self.wind, self.aerodynamics, self.controller, self.structure]
         self.time = 0
         self.dt = 0
         self.step_idx = 0
@@ -142,52 +141,3 @@ class Simulation:
                 print(f"Skipping '{save_to.as_posix()}' because it already exists and 'overwrite=False'")
                 continue
             pd.DataFrame(time | data).to_csv(save_to, index=False)
-
-
-if __name__ == "__main__":
-    from aerodynamics import Aerodynamics
-    from controller import ConstantRotSpeedController, PIController
-    from recorder import (
-        aero_power_recorder,
-        aero_torque_recorder,
-        controller_mode,
-        generator_power_recorder,
-        generator_torque_recorder,
-        induction_recorder,
-        pitch_recorder,
-        py_recorder,
-        pz_recorder,
-        rotation_speed_recorder,
-        setpoint_pitch_recorder,
-        thrust_recorder,
-        tsr_recorder,
-        wind_5_recorder,
-    )
-    from structure import RigidStructure
-    from wind import ConstantWind, ShearWind, TurbulentWind, WindSteps, WindWithTower
-
-    wind = ConstantWind(1)
-    steps = [(10 * i, i) for i in range(0, 15)] + [(160, 5)]
-    wind = WindSteps(wind, *steps)
-    # wind = TurbulentWind.generate((512, 16, 16), (5, 15, 15), 0.1, wind)
-    sim = Simulation(
-        structure=RigidStructure(1 / 60 * 2 * np.pi),
-        controller=PIController(above_rated_mode="torque"),
-        aerodynamics=Aerodynamics(),
-        wind=wind,
-        recorders=[
-            # induction_recorder(0, 11),
-            aero_power_recorder(),
-            generator_power_recorder(),
-            thrust_recorder(),
-            aero_torque_recorder(),
-            rotation_speed_recorder(),
-            generator_torque_recorder(),
-            pitch_recorder(),
-            setpoint_pitch_recorder(),
-            tsr_recorder(),
-            controller_mode(),
-        ],
-        verbose=False,
-    )
-    sim.run(0.05, 250, "_sim_controller", overwrite=True)
