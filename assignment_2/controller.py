@@ -28,6 +28,10 @@ class ControllerBase(ABC):
     def setpoint_pitch(self) -> np.ndarray:
         pass
 
+    @abstractmethod
+    def power(self, simulation: Simulation) -> float:
+        pass
+
 
 class PIController(ControllerBase):
     def __init__(self, Kp=1.5, Ki=0.64, KK=14, omega_ref_factor=1.0, above_rated_mode="power") -> None:
@@ -141,3 +145,6 @@ class ConstantRotSpeedController(ControllerBase):
     @property
     def setpoint_pitch(self) -> np.ndarray:
         return self._pitch
+
+    def power(self, simulation: Simulation):
+        return self.generator_torque * simulation.structure.omega_shaft
