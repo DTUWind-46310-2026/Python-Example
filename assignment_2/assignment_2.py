@@ -80,9 +80,13 @@ if do["task_1"]:
     base_wind = ConstantWind(1)
     from recorder import aero_power_recorder, pitch_recorder
 
-    wind_steps = [(120 * i - 480, i) for i in range(4, 12)] + [(30 * i + 5 * 120, i) for i in range(12, 26)]
+    T_below_rated = 180
+    T_above_rated = 40
+    wind_steps = [(T_below_rated * i - 4 * T_below_rated, i) for i in range(4, 12)] + [
+        (T_above_rated * i + 5 * T_below_rated, i) for i in range(12, 26)
+    ]
     aero = Aerodynamics()
-    structure = RigidStructure(7.8052 / 89.17 * 4)
+    structure = RigidStructure(7.8052 * 4 / 89.17)
     sim = Simulation(
         wind=WindSteps(base_wind, *wind_steps),
         structure=structure,
@@ -90,7 +94,7 @@ if do["task_1"]:
         controller=PIController(),
         recorders=[aero_power_recorder(), pitch_recorder()],
     )
-    sim.run(0.1, wind_steps[-1][0] + 30, dir_task_1, True)
+    sim.run(0.1, wind_steps[-1][0] + T_above_rated, dir_task_1, True)
 
     data = sim.get_recorders()
     CP = np.zeros(len(wind_steps))
