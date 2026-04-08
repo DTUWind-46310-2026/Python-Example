@@ -10,7 +10,6 @@ from pathlib import Path
 
 import numpy as np
 from scipy.interpolate import interp1d
-
 from timing import timer
 
 
@@ -177,7 +176,7 @@ class WindSteps(WindBase):
         self._step_multipliers = np.asarray([step[1] for step in steps])
 
         self._i_current_wind = 0
-        self._current_multiplier = 1
+        self._current_multiplier = self._step_multipliers[0]
 
     def step(self, simulation):
         if np.any(simulation.time >= self._step_times):
