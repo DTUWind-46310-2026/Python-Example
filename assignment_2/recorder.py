@@ -103,6 +103,13 @@ def wind_5_recorder(name: str, blade_idx: int, element_idx: int):
     return Recorder(wind5, name, ("u", "v", "w"))
 
 
+def wind_1_recorder(name: str, xyz: tuple[float, float, float]):
+    def wind1(simulation: Simulation):
+        return simulation.wind(xyz)
+
+    return Recorder(wind1, name, ("u", "v", "w"))
+
+
 def py_recorder(blade_idx=0, n_elements=18):
     def py(simulation: Simulation):
         return simulation.aerodynamics.py[blade_idx]
