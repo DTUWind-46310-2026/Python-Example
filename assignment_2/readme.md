@@ -6,7 +6,7 @@ To install the code, follow the instructions in the `readme.md` of `exercise_1` 
 
 `py assignment_2.py` will, in its current state, result in
 
-1. Running an optimisation to find (TSR, $\theta$)$_{\text{opt}}$ for below rated conditions. These optimal values are then given to the aerodynamics and structural (for the pitch range) classes.
+1. Running an optimisation to find the optimal (TSR, $\theta$) for below rated conditions. These optimal values are then given to the aerodynamics and structural (for the pitch range) classes.
 2. Run Task 1 by running a simulation with steps in wind speed from 4 to 25 m/s inflow. From each step, the pitch and $C_P$ are extracted.
 3. Run Task 2 by running a turbulent wind simulation. The plot `controller_modes.pdf` shows a timeseries of when the pitch controller is active and when the generator torque controller switches between the optimal power tracking and constant power or torque.
 
