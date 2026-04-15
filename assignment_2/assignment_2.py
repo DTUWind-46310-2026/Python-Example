@@ -13,9 +13,9 @@ from structure import RigidStructure
 from wind import ConstantWind, ShearWind, TurbulentWind, WindSteps
 
 do = {
-    "CP_optimisation": False,
-    "task_1": False,
-    "task_2": False,
+    "CP_optimisation": True,
+    "task_1": True,
+    "task_2": True,
 }
 
 plot = {
