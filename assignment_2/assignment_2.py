@@ -13,9 +13,9 @@ from structure import RigidStructure
 from wind import ConstantWind, ShearWind, TurbulentWind, WindSteps
 
 do = {
-    "CP_optimisation": True,
-    "task_1": True,
-    "task_2": True,
+    "CP_optimisation": False,
+    "task_1": False,
+    "task_2": False,
 }
 
 plot = {
@@ -118,12 +118,16 @@ if plot["task_1"]:
     ax.plot(df_report_pitch["ws"], df_report_pitch["pitch"], label="Report")
     ax.plot(cp_and_pitch["ws"], cp_and_pitch["pitch"], label="Own")
     ax.legend()
+    ax.set_xlabel("Wind speed (m/s)")
+    ax.set_ylabel("Pitch angle (°)")
     fig.savefig(dir_task_1 / "pitch.pdf")
 
     fig, ax = plt.subplots()
     ax.plot(df_report_cp["ws"], df_report_cp["CP"], label="Report")
     ax.plot(cp_and_pitch["ws"], cp_and_pitch["CP"], label="Own")
     ax.legend()
+    ax.set_xlabel("Wind speed (m/s)")
+    ax.set_ylabel("Power coefficient (-)")
     fig.savefig(dir_task_1 / "CP.pdf")
 
 
@@ -174,19 +178,27 @@ if plot["task_2"]:
     fig, ax = plt.subplots()
     data["aero_power"].plot.line(x="time", ax=ax)
     data["gen_power"].plot.line(x="time", ax=ax)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Power (W)")
     fig.savefig(dir_task_2 / "power.pdf")
 
     fig, ax = plt.subplots()
     data["pitch"].plot.line(x="time", ax=ax)
     data["sp_pitch"].plot.line(x="time", ax=ax)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Pitch angle (°)")
     fig.savefig(dir_task_2 / "pitch.pdf")
 
     fig, ax = plt.subplots()
     data["aero_torque"].plot.line(x="time", ax=ax)
     data["generator_torque"].plot.line(x="time", ax=ax)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Torque (N·m)")
     fig.savefig(dir_task_2 / "torque.pdf")
 
     fig, ax = plt.subplots()
     data["controller_modes"].plot.line(x="time", ax=ax)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Mode (-)")
     fig.savefig(dir_task_2 / "controller_modes.pdf")
     plt.show()

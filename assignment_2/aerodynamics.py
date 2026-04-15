@@ -11,9 +11,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from numpy import newaxis as na
-from scipy.interpolate import RegularGridInterpolator
-
 from rotation import Rotation
+from scipy.interpolate import RegularGridInterpolator
 from timing import timer
 
 
@@ -92,6 +91,16 @@ class Aerodynamics(AerodynamicsBase):
             the geomtrical model is used. Accepted values are `True`, `False`, `geometrical`, `empirical`.
         rho : float, optional
             Air density, by default 1.225.
+        CP_max : float, optional
+            Maximum power coefficient, by default 0.4633.
+        tsr_opt : float, optional
+            Optimal tip-speed ratio, by default 7.8052.
+        omega_rated : float, optional
+            Rated rotor angular velocity [rad/s], by default 1.002.
+        P_rated : float, optional
+            Rated power [W], by default 10.64e6.
+        pitch_opt : float, optional
+            Optimal pitch angle [deg], by default -0.3196.
         skip_last_blade_elements : int, optional
             How many blade elements (defined by simulation.strucutre) to skip, counting from the tip. By default 1.
         """

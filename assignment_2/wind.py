@@ -167,6 +167,18 @@ class WindWithTower(WindBase):
 
 class WindSteps(WindBase):
     def __init__(self, base_wind: WindBase, *steps: tuple[float, float]) -> None:
+        """
+        Initialises a wind instance that scales `base_wind` by a multiplier that
+        changes at specified times.
+
+        Parameters
+        ----------
+        base_wind : WindBase
+            The base wind instance to scale. Must have ``hub_mean == 1``.
+        *steps : tuple[float, float]
+            Any number of ``(t_i, multiplier_i)`` pairs. When ``simulation.time >= t_i``,
+            the wind speed is multiplied by ``multiplier_i``.
+        """
         if base_wind.hub_mean != 1:
             raise ValueError("`base_wind` must have a `hub_mean` of 1.")
 
@@ -311,6 +323,9 @@ try:
                 The mean wind.
             save : str | Path, optional
                 File path to where the turbulence fluctuations are saved, by default not saved.
+            hub_mean : float or None, optional
+                Hub mean wind speed. Only needed when `mean_wind.hub_mean` is `None`
+                (e.g. `ShearWind` before `simulation_init` is called), by default None.
 
             Returns
             -------
@@ -365,26 +380,3 @@ try:
 
 except ImportError:
     print("class `TurbulentWind` not loaded since `hipersim` or `wetb` are not installed.")
-
-
-if __name__ == "__main__":
-
-    shear = ShearWind(x_ref=119, v_ref=8, exponent=0.2)
-    turbulent_wind = TurbulentWind.generate(Nxyz=(64, 4, 4), dxyz=(5, 1, 1), TI=0.1, mean_wind=shear)
-    turbulent_with_tower = WindWithTower(surrounding_wind=turbulent_wind)
-
-    mean = ConstantWind(20)
-    from structure import RigidStructure
-
-    wind = WindWithTower(mean)
-    sim = type("Simulation", (), {"structure": RigidStructure()})()
-    wind.simulation_init(sim)
-    xyz = np.asarray([[120, 2, 2], [80, 2, 2]])
-
-    # turb = TurbulentWind((512, 256, 32), (10, 5, 5), 0.1, mean)
-    # xyz = np.asarray([10, 5, 5])
-    # print(turb(xyz))
-    # xyz = np.asarray([500, 60, 50])
-    # print(turb(xyz))
-    # xyz = np.asarray([[4000, 600, 100], [6, 6, 6]])
-    # print(turb(xyz))

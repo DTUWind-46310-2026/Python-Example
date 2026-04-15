@@ -1,69 +1,45 @@
-# Example Python code for Exercise 1
+# Assignment 2
 
-## Installation
+To install the code, follow the instructions in the `readme.md` of `exercise_1` and adjust it for `assignment_2`. What `assignment_2.py` does and the main code changes compared to Assignment 1 are explained below.
 
-The guide below describes how to install and run the code through a command line interface.
+## `assignemnt_2.py`
 
-1. Clone the repository. E.g., change your working directory in a command line interface to where you want to create a new directory with this code and then `git clone https://github.com/DTUWind-46310-2026/Python-Example`.
-2. From the same command line interface, create a virtual environment using `python -m venv .venv`.
-3. Again from the command line interface, activate the environment by `.\.venv\Scripts\activate`.
-4. Install the requirements by `pip install -r requirements.txt`
-5. Test the installation by running `python 1.py`.
+`py run assignment_2.py` will, in its current state, result in
 
-## Documentation
+1. Running an optimisation to find (TSR, $\theta$)$_{\text{opt}}$ for below rated conditions. These optimal values are then given to the aerodynamics and structural (for the pitch range) classes.
+2. Run Task 1 by running a simulation with steps in wind speed from 4 to 25 m/s inflow. From each step, the pitch and $C_P$ are extracted.
+3. Run Task 2 by running a turbulent wind simulation. The plot `controller_modes.pdf` shows a timeseries of when the pitch controller is active and when the generator torque controller switches between the optimal power tracking and constant power or torque.
 
-This briefly outlines some of the choices made. The code structure is based on the slides `coding_structure` from the class. File `1.py` has solutions to the exercise 1; use this file to for a top-level understanding of how to run the simulations.
+## Comparison to Assignment 1
+
+### `controller.py`
+
+Contains classes
+
+- `ControllerBase`: Defining the structure that all controller classes need to have.
+- `PIController`: k-ω² below rated, constant-power or constant-torque above rated, and collective pitch PI
+- `ConstantRotSpeedController`: Keeps the rotational speed of the rotor constant by always setting the generator torque to the aerodynamic torque. This class is used during an optimisation to find the optimal performance below rated.
+
+### `aerodynamics.py`
+
+The aerodynamics classes now hold information about the conditions for optimal aerodynamic behaviour, such as
+
+- $C_{p,\text{max}}$
+- $\text{TSR}_{\text{opt}}$
+- $\omega_{\text{rated}}$
+- $P_{\text{rated}}$
+- $\theta_{\text{opt}}$
+
+`AerodynamicsBase` is adjusted accordingly.
 
 ### `structure.py`
 
-The coordinate systems are slightly different compared to what we learned in class. This should probably be updated. Currently, the coordinate systems are:
+The structure classes now also contain information about the rotor inertia, the pitch limits, and the pitch actuator dynamics. Additionally, the rotational speed is calculated based on the difference in aerodynamic and generator torque.
 
-1. Ground reference.
-2. In the hub, yawed with respect to 1.
-3. At the end of the shaft, tilted with respect to 2.
-4. At the base of one of the blades, rotated in the azimuth to the corresponding blade with respect to 3.
-5. Along the blade, coned with respect to 4.
+### `wind.py`
 
-The addition here is the coordinate system between 3 and 5 that selects a single blade. In class, this is skipped and we go straight to the blades.
+Now contains class `WindSteps` that multiplies the wind speeds returned by a `base_wind: WindBase` with specified factors at specified times. This class is used for the optimisation and the first task.
 
-### `recorders.py`
+### `simulation.py`
 
-This pre-defines some functionalties to record data during a simulation. Use the `Recorder` class to define your custom recorders. Some examples (your custom ones don't have to be classes) are:
-
-1. `BladePosition1Recorder`: Record the position of a blade element in coordinate system 1.
-2. `BladeVelocity5Recorder`: Record the blade velocity (without wind!) of a blade element in coordinate system 5.
-3. `Wind5Recorder`: Record the wind velocity of a blade element in coordinate system 5.
-
-## Scary Python code
-
-If you look under the hood, some code might seem daunting. Here's what the (probably) scariest code does:
-
-### `@abstractmethod`
-
-This is used in parent classes to specify functions that the children classes need to implement. This is very useful to define a blueprint. If some code somewhere receives a child class of said parent class, the code knows for certain that the child class has the functions that were specified by `@abstractmethod`.
-
-Functions that have this `@abstractmethod` do not do anything themselves; the children define what they do. However, the define that they need to be there and what they receive.
-
-### `__init__(self, ...)`
-
-If you have a class
-
-```python
-class MyClass:
-    def __init__(self, ...):
-        <some code>
-```
-
-then this `__init__()` function is used if you run `MyClass(...)`.
-
-```python
-my_object = MyClass(...)
-```
-
-### `__call__(self, ...)`
-
-Similar to `__init__()`, but this time for the instance `my_object`. I.e., `__call__()` is used when you do
-
-```python
-my_object(...)
-```
+The simulation now receives a controller instance as well. The step order is `aerodynamics -> controller -> structure -> wind`. For `ConstantRotSpeedController` to work, the controller needs to be stepped after the aerodynamics but before the structure.

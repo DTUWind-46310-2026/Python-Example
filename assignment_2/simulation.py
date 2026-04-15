@@ -27,12 +27,18 @@ class Simulation:
 
         Parameters
         ----------
-        structure : Structure
+        structure : StructureBase
             The structure instance.
+        controller : ControllerBase
+            The controller instance.
+        aerodynamics : AerodynamicsBase, optional
+            The aerodynamics instance., by default NoAerodynamics()
         wind : Wind, optional
             The wind instance., by default NoWind()
         recorders : Recorder | list[Recorder] | None, optional
             Any number of recorders. By default, a recorder is added that saves the times of the simulation.
+        verbose : bool, optional
+            Whether to show a progress bar during simulation, by default True
         """
         self.structure = structure
         self.wind = wind

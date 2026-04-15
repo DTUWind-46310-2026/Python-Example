@@ -5,10 +5,11 @@
 The guide below describes how to install and run the code through a command line interface.
 
 1. Clone the repository. E.g., change your working directory in a command line interface to where you want to create a new directory with this code and then `git clone https://github.com/DTUWind-46310-2026/Python-Example`.
-2. From the same command line interface, create a virtual environment using `python -m venv .venv`.
-3. Again from the command line interface, activate the environment by `.\.venv\Scripts\activate`.
-4. Install the requirements by `pip install -r .\requirements.txt`
-5. Test the installation by running `python 1.py`.
+2. Change your working directory into `exercise_1`.
+3. From the same command line interface, create a virtual environment using `python -m venv .venv`.
+4. Again from the command line interface, activate the environment by `.\.venv\Scripts\activate`.
+5. Install the requirements by `pip install -r .\requirements.txt`
+6. Test the installation by running `python 1.py`.
 
 ## Documentation
 

@@ -23,8 +23,7 @@ class StructureBase(ABC):
     - `blade_x1()`
     - `blade_u5()`
     - `x15()`
-
-    The method `simulation_init()` does nothing by default and can be overwritten (in the children).
+    - `x51()`
 
     This class defines some functionalities that are useful for the child classes (RigidStructure and at some
     point a flexible structure).
@@ -55,30 +54,34 @@ class StructureBase(ABC):
 
         Parameters
         ----------
-        omega_init : float, optional
-            The initial rotational speed of the rotor, by default 0.0
-        file_blade : str, optional
-            Path to the file defining the blade structure. The path is expected to be a csv file
-            with columns `r,c,twist,rel_thickness` for the radial position `r`, chord `c`, twist `twist`, and
-            relative thickness `rel_thickness`, by default "data/blade_data.csv"
-        hub_height : float, optional
-            Hub height of the wind turbine, by default 119.0
-        l_shaft : float, optional
-            Length of the shaft, by default 7.1
-        yaw : float, optional
-            Yaw of the rotor, by default 0.0
-        tilt : float, optional
-            Tilt of the shaft, by default 0.0
-        cone : float, optional
-            Coning of the rotor, by default 0.0
-        pitch_init : list, optional
-            The initial pitch angles for each blade. From this, the number of blades are defined, by default (0, 0, 0)
-        tower_zy : tuple[float, float], optional
-            The `(y, z)` position of the tower base, by default (0, 0)
+        omega_init : float
+            The initial rotational speed of the rotor in rad/s
+        file_blade : str or Path
+            Path to the csv file defining the blade structure. Expected columns: `radius`, `chord`, `twist`,
+            `rel_thickness`
+        radius : float
+            Rotor radius (tip radius) in metres
+        hub_height : float
+            Hub height of the wind turbine in metres
+        l_shaft : float
+            Length of the shaft in metres
+        yaw : float
+            Yaw angle of the rotor in degrees
+        tilt : float
+            Tilt angle of the shaft in degrees
+        cone : float
+            Coning angle of the rotor in degrees
+        pitch_init : tuple[float, ...]
+            Initial pitch angles (degrees) for each blade. The number of blades is inferred from the
+            length of this tuple
+        pitch_range : tuple[float, float]
+            Allowed pitch range (min, max) in degrees
+        tower_yz : tuple[float, float]
+            The `(y, z)` position of the tower base in metres
         tower_radius : tuple[tuple[float, ...], tuple[float, ...]]
-            The tower radius distribution over `x` defined as `(x coords, radii)`, where `x coords` and `radii` are
-            tuples of values with corresponding indices. By default `((0, 119), (3.32, 3.32))`, ie. constant radius of
-            3.32m from 0m to 119m
+            The tower radius distribution over `x` defined as a tuple of tuples of `(x, radius)`.
+        rotor_inertia : float
+            Moment of inertia of the rotor about the shaft axis in kg·m²
         """
         df_blade_data = pd.read_csv(file_blade)
         r = df_blade_data["radius"].to_numpy()
@@ -218,6 +221,25 @@ class StructureBase(ABC):
         self._set_angle("_tilt", tilt)
 
     def blade_azimuth(self, blade_idx):
+        """
+        Returns the azimuth angle of blade `blade_idx` in radians. Blades are equally spaced around
+        the rotor; blade 0 has azimuth equal to `azimuth_shaft`.
+
+        Parameters
+        ----------
+        blade_idx : int or array-like of int
+            Index (or indices) of the blade(s). Must be less than `n_blades`.
+
+        Returns
+        -------
+        float or np.ndarray
+            Azimuth angle(s) in radians.
+
+        Raises
+        ------
+        ValueError
+            If any `blade_idx` exceeds `n_blades`.
+        """
         if np.any(blade_idx > self.n_blades):
             raise ValueError(f"Structure only has '{self.n_blades}' blades, but {blade_idx=}.")
         return self.azimuth_shaft + blade_idx * 2 * np.pi / self.n_blades
@@ -271,16 +293,17 @@ class RigidStructure(StructureBase):
         rotor_inertia=1.6e8,
         pitch_eigenfreq=8,
         pitch_damping_ratio=0.7,
-        # pitch_eigenfreq=5,
-        # pitch_damping_ratio=0.8,
     ) -> None:
         """
-        Initialises an instance for a rigid wind turbine. See `StructureBase` for more information.
+        Initialises an instance for a rigid wind turbine. See `StructureBase.__init__` for the
+        full list of inherited parameters.
 
         Parameters
         ----------
-        drive_train_dynamics : bool, optional
-            Whether or not to include drive train dynamics, by default False
+        pitch_eigenfreq : float, optional
+            Natural frequency of the pitch actuator model in rad/s, by default 8
+        pitch_damping_ratio : float, optional
+            Damping ratio of the pitch actuator model (dimensionless), by default 0.7
         """
         super().__init__(
             omega_init=omega_init,
@@ -379,6 +402,22 @@ class RigidStructure(StructureBase):
         return Rotation.rotate_3d_y(x4, -self.cone)
 
     def x51(self, array: np.ndarray, blade_idx: int) -> np.ndarray:
+        """
+        Transforms an array from the blade coordinate system 5 into coordinate system 1.
+        This is the inverse of `x15`.
+
+        Parameters
+        ----------
+        array : np.ndarray
+            Array with shape (n, 3) where each row is in the directions [x, y, z] of CS5.
+        blade_idx : int
+            Blade index.
+
+        Returns
+        -------
+        np.ndarray
+            The transformed array in coordinate system 1.
+        """
         x4 = Rotation.rotate_3d_y(array, self.cone)
         x3 = Rotation.rotate_3d_z(x4, self.blade_azimuth(blade_idx))
         x2 = Rotation.rotate_3d_x(x3, self.tilt)
@@ -399,30 +438,37 @@ class PitchingRigidStructure(RigidStructure):
         tilt=-5.0,
         cone=2.5,
         pitch_init: tuple[float, ...] = (-0.3196, -0.3196, -0.3196),
+        pitch_range=(-0.3196, 90),
         tower_yz: tuple[float, float] = (0, 0),
         tower_radius: tuple[tuple[float, ...], tuple[float, ...]] = ((0, 119), (3.32, 3.32)),
-        drive_train_dynamics=False,
+        rotor_inertia=1.6e8,
     ) -> None:
         """
-        See `RigidStructure` for more information. `*steps` can be any number of tuples defining (t_i, pitch_i), i.e.
-        for `simulation.time >= t_i`, `pitch_i` is applied.
+        A rigid structure that applies prescribed pitch step changes at specified times.
+        See `RigidStructure.__init__` for all other accepted keyword arguments. The pitch is applied
+        immediately; no pitch dynamics are modelled.
 
         Parameters
         ----------
+        *steps : tuple[float, float]
+            Any number of `(t_i, pitch_i)` pairs. When `simulation.time >= t_i`, the collective
+            pitch of all blades is set to `pitch_i` degrees. Steps are applied in the order given
+            and the last pitch value is held indefinitely.
         """
         super().__init__(
-            omega_init,
-            file_blade,
-            radius,
-            hub_height,
-            l_shaft,
-            yaw,
-            tilt,
-            cone,
-            pitch_init,
-            tower_yz,
-            tower_radius,
-            drive_train_dynamics,
+            omega_init=omega_init,
+            file_blade=file_blade,
+            radius=radius,
+            hub_height=hub_height,
+            l_shaft=l_shaft,
+            yaw=yaw,
+            tilt=tilt,
+            cone=cone,
+            pitch_init=pitch_init,
+            pitch_range=pitch_range,
+            tower_yz=tower_yz,
+            tower_radius=tower_radius,
+            rotor_inertia=rotor_inertia,
         )
 
         self._step_times = np.asarray([step[0] for step in steps])
@@ -438,15 +484,3 @@ class PitchingRigidStructure(RigidStructure):
 
         # Advance the rotor position
         super().step(simulation)
-
-
-if __name__ == "__main__":
-    wt_structure = RigidStructure(yaw=0, tilt=-10, cone=10)
-    # print(wt_structure.blade_azimuth(0))
-    # print(wt_structure.blade_azimuth(1))
-    # print(wt_structure.blade_azimuth(2))
-    # print(wt_structure.blade_x1(0))
-    # print(wt_structure.blade_x1(1))
-    # print(wt_structure.blade_x1(2))
-
-    print(wt_structure.max_downstream_azimuth)
