@@ -4,7 +4,7 @@ To install the code, follow the instructions in the `readme.md` of `exercise_1` 
 
 ## `assignemnt_2.py`
 
-`py run assignment_2.py` will, in its current state, result in
+`py assignment_2.py` will, in its current state, result in
 
 1. Running an optimisation to find (TSR, $\theta$)$_{\text{opt}}$ for below rated conditions. These optimal values are then given to the aerodynamics and structural (for the pitch range) classes.
 2. Run Task 1 by running a simulation with steps in wind speed from 4 to 25 m/s inflow. From each step, the pitch and $C_P$ are extracted.
