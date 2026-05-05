@@ -2,3 +2,5 @@
 */.venv/
 *.csv
 *.nc
+
+!animation_flexible/data/**/*.csv
