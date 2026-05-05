@@ -1,4 +1,4 @@
-# Notes
+# Example and Notes
 
 To use the animation functionality, you need
 
