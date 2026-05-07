@@ -1,6 +1,13 @@
 # Example and Notes
 
+Simulation Animation
+
 https://github.com/user-attachments/assets/346a8f1d-2edf-4432-a186-81a05b1298b1
+
+Mode Animation
+
+https://github.com/user-attachments/assets/885a1afe-124c-4720-a88d-866b8a58e990
+
 
 Provided functionalities are:
 
