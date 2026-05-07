@@ -502,3 +502,65 @@ def animate(
     anim.save(output, writer=writer)
     plt.close(fig)
     print(f"Wrote animation to {output.resolve()}")
+
+
+def animate_modes(
+    file_frequencies: str | Path, file_modes: str | Path, dir_animations: str | Path, fps=30, scale_deflections=15.0
+):
+    """
+    Animate mode shapes of a wind turbine. The main required input data are the two files `file_frequencies` and
+    `file_modes` describing the modes.
+
+    Parameters
+    ----------
+    file_frequencies : str | Path
+        File to the csv containing the frequencies in Hz of the modes. Must contain the columns [mode, freq_Hz], where mode is the integer number of the mode.
+    file_modes : str | Path
+        File to the csv containing the mode shapes. Must contain the columns
+        [DOF,mode_1,<mode_i, mode_i+1, mode_i+2>] where i loops over the number of flexible blades
+    dir_animations : str | Path
+        The directory into which the animations (and the state csvs) are saved.
+    fps : int, optional
+        Frames per second for the animation., by default 30
+    scale_deflections : float, optional
+        Factor by which the mode shapes are scaled, by default 15.0
+    """
+
+    (anim_dir := Path(dir_animations)).mkdir(exist_ok=True, parents=True)
+
+    df_freqs = pd.read_csv(file_frequencies)
+    df_modes = pd.read_csv(file_modes, index_col=0)
+
+    T_anim = 20.0
+    dt_anim = 1.0 / fps
+    t_grid = np.arange(0.0, T_anim, dt_anim)
+    q_cols = [f"q_b{b}_m{m}" for b in range(int((df_modes.shape[0] - 2) / 3) + 1) for m in range(3)]
+    if len(q_cols) / 3 > 3:
+        raise ValueError("Automatic mode animation is currently hard-coded to 3 blades max.")
+    state_cols = ["time", "x_t", "phi_shaft", *q_cols]
+
+    for _, row in df_freqs.iterrows():
+        k = int(row["mode"])
+        f_k = float(row["freq_Hz"])
+        mode_col = f"mode_{k}"
+        shape = df_modes[mode_col]
+        shape = shape / np.max(np.abs(shape.to_numpy()))
+
+        envelope = np.sin(2 * np.pi * f_k * t_grid)
+        data = {"time": t_grid, "x_t": float(shape["x_t"]) * envelope, "phi_shaft": np.zeros_like(t_grid)}
+        for c in q_cols:
+            data[c] = float(shape[c]) * envelope
+        state_path = anim_dir / f"mode_{k}_state.csv"
+        pd.DataFrame(data, columns=state_cols).to_csv(state_path, index=False)
+
+        animate(
+            state_csv=state_path,
+            output=anim_dir / f"mode_{k}.mp4",
+            scale_deflections=scale_deflections,
+            title=f"System mode {k} — f = {f_k:.3f} Hz",
+            blade_data_csv="data/blade_data.csv",
+            mode_shapes_csv="data/blade_mode_shapes.csv",
+            fps=fps,
+            tip_deflection=False,
+            plot_blade=None,
+        )
