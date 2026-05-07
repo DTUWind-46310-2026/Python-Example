@@ -103,9 +103,18 @@ def test_tower():
     )
 
 
+def test_mode_animation():
+    from animate_structure import animate_modes
+
+    animate_modes(
+        "data/mode_animation/eigen_frequencies.csv", "data/mode_animation/eigen_mode_shapes.csv", "data/mode_animation/"
+    )
+
+
 if __name__ == "__main__":
-    # test_5dof()
-    # test_11dof()
-    # test_helikopter()
+    test_5dof()
+    test_11dof()
+    test_helikopter()
     test_pitching()
-    # test_tower()
+    test_tower()
+    test_mode_animation()

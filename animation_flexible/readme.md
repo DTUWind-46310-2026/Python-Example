@@ -14,6 +14,6 @@ To use the animation functionality, you need
 - data/blade_mode_shape.csv
 - data/blade_data.csv
 
-from this directory. Then, you may use `from animate_structure import animate, animate_modes`. To learn how to use `animate()` and `animate_modes`, look at its docstring and `tests.py` for `animate()` (for which the outputs are in data/).
+from this directory. Then, you may use `from animate_structure import animate, animate_modes`. To learn how to use `animate()` and `animate_modes`, look at its docstring and `tests.py` (for which the outputs are in data/).
 
 You might need to install FFmpeg yourself. [https://matplotlib.org/stable/users/explain/animations/animations.html](https://matplotlib.org/stable/users/explain/animations/animations.html) gives an example at the bottom of the page.
