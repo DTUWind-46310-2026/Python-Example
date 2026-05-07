@@ -1,5 +1,7 @@
 # Example and Notes
 
+https://github.com/user-attachments/assets/346a8f1d-2edf-4432-a186-81a05b1298b1
+
 To use the animation functionality, you need
 
 - animate_structure.py
