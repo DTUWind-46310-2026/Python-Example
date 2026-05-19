@@ -4,3 +4,5 @@
 *.nc
 
 !animation_flexible/data/**/*.csv
+!assignment_3/data/*.csv
+!assignment_3/task_3/*.csv
