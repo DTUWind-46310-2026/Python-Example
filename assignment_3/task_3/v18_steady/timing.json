@@ -1,0 +1,52 @@
+{
+  "general": {
+    "T_sim": 200.0,
+    "T_compute": 7.7033734,
+    "dt": 0.05,
+    "n_dt/T_compute": 519.2530327038281
+  },
+  "WindWithTower.step": {
+    "total_s": 0.0110985,
+    "count": 4001,
+    "ShearWind.step": {
+      "total_s": 0.001697,
+      "count": 4001
+    }
+  },
+  "Aerodynamics.step": {
+    "total_s": 4.8832624,
+    "count": 4001,
+    "Aerodynamics.step_inflow": {
+      "total_s": 3.1225764,
+      "count": 4001,
+      "WindWithTower.__call__": {
+        "total_s": 1.2204006,
+        "count": 12003,
+        "ShearWind.__call__": {
+          "total_s": 0.3218174,
+          "count": 12003
+        }
+      }
+    },
+    "Aerodynamics.step_forces": {
+      "total_s": 1.3511524,
+      "count": 4001
+    },
+    "Aerodynamics.step_induction": {
+      "total_s": 0.3800561,
+      "count": 4001
+    }
+  },
+  "ElasticStructure.step": {
+    "total_s": 2.8090125,
+    "count": 4001,
+    "ElasticStructure._assemble_matrices": {
+      "total_s": 0.4716676,
+      "count": 3651
+    },
+    "ElasticStructure._compute_Q": {
+      "total_s": 1.8225561,
+      "count": 4001
+    }
+  }
+}
